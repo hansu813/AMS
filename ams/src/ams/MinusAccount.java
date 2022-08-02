@@ -28,7 +28,7 @@ public class MinusAccount extends Account {
 	}
 	@Override
 	public String toString() {
-		String sf = String.format("%-12s\t%-5s\t%-,8d\t%-,8d", getAccountType(), 
+		String sf = String.format("%-10s\t%-12s\t%-6s\t%-,8d\t%-,8d", getAccountType(), 
 				getAccountNum(), getAccountOwner(), getRestMoney(), getBorrowMoney());
 		
 		return sf;
