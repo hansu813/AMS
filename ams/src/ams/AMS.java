@@ -9,6 +9,10 @@ public class AMS {
 	public static void main(String[] args) {
 		Inventory inventory = new Inventory();
 		
+		Account account = new Account("1111-1111", "김한수", 1234);
+		inventory.open(account);
+		inventory.open(new Account("1111-2222", "김한수", 1234));
+		
 		Frame frame = new Frame(Account.bankName + "계좌 관리 프로그램");
 		AMSPanel panel = new AMSPanel(inventory);
 		panel.init();

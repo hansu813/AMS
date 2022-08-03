@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * 은행 계좌 관리 프로그램의 CRUD
@@ -23,25 +24,16 @@ public class Inventory {
 	 * 전체 계좌 반환
 	 * @return Collection<Account>
 	 */
-	public Collection<Account> getAccounts() {
-		return accounts.values();
+	public List<Account> getAccounts() {
+		List<Account> list = new ArrayList<>();
+		for(Entry<String, Account> entrySet : accounts.entrySet()) {
+			list.add(entrySet.getValue());
+		}
+		return list;
 	}
 	
 	public int getCount() {
 		return accounts.size();
-	}
-	
-	private List<Account> find(String string) {
-		List<Account> findList = new ArrayList<>();
-		Collection<Account> list = accounts.values();
-		Iterator<Account> iter = list.iterator();
-		while (iter.hasNext()) {
-			Account account = iter.next();
-			if(account.getAccountOwner().equals(string)) {
-				findList.add(account);
-			}
-		}
-		return findList;
 	}
 	
 	/**
@@ -57,8 +49,8 @@ public class Inventory {
 	 * @param accountNum
 	 * @return List<Account>
 	 */
-	public List<Account> findNum(String accountNum) {
-		return find(accountNum);
+	public Account findNum(String accountNum) {
+		return accounts.get(accountNum);
 	}
 	/**
 	 * 예금주명으로 계좌 찾기
@@ -66,14 +58,24 @@ public class Inventory {
 	 * @return List<Account>
 	 */
 	public List<Account> findOwner(String accountOwner) {
-		return find(accountOwner);
+		List<Account> findList = new ArrayList<>();
+		Collection<Account> list = accounts.values();
+		Iterator<Account> iter = list.iterator();
+		while(iter.hasNext()) {
+			Account account = iter.next();
+			if(account.getAccountOwner().equals(accountOwner)) {
+				findList.add(account);
+			}
+		}
+		
+		return findList;
 	}
 	/**
 	 * 계좌 삭제하기
 	 * @param accountNum
 	 * @return Account
 	 */
-	public Account remove(String accountNum) {
-		return accounts.remove(accountNum);
+	public void remove(String accountNum) {
+		accounts.remove(accountNum);
 	}
 }
