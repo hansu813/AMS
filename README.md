@@ -10,7 +10,7 @@
 
 ## 👀Image
 * 메인화면  
-!<img src="./Image/Untitled.png" width="450" height="250">
+<img src="./Image/Untitled.png" width="450" height="250">
 
 ***
 
