@@ -1,19 +1,26 @@
 package ams;
+
 /**
- * 마이너스 계좌 class
+ * 마이너스 계좌
  * @author 김한수
  *
  */
 public class MinusAccount extends Account {
+
+	public String accountType = "마이너스 계좌";
+	
 	private long borrowMoney;
-	private String accountType = "마이너스 계좌";
+	
 	public MinusAccount() {}
 	public MinusAccount(String accountNum, String accountOwner, int passwd) {
 		super(accountNum, accountOwner, passwd);
 		this.borrowMoney = 0;
 	}
+	public MinusAccount(String accountNum, String accountOwner, int passwd, long restMoney, long borrowMoney) {
+		super(accountNum, accountOwner, passwd, restMoney);
+		this.borrowMoney = borrowMoney;
+	}
 	
-//	Setter and Getter
 	public long getBorrowMoney() {
 		return borrowMoney;
 	}
@@ -21,29 +28,30 @@ public class MinusAccount extends Account {
 		this.borrowMoney = borrowMoney;
 	}
 	
-//	Method Overriding
+	
+	@Override
+	public String getAccountType() {
+		return accountType;
+	}
 	@Override
 	public long getRestMoney() {
 		return super.getRestMoney() - getBorrowMoney();
 	}
 	@Override
 	public String toString() {
-		String sf = String.format("%-10s\t%-12s\t%-6s\t%-,8d\t\t%-,8d", getAccountType(), 
-				getAccountNum(), getAccountOwner(), getRestMoney(), getBorrowMoney());
-		
-		return sf;
+		String text = super.toString();
+		return text + String.format("\t%-,8d", getBorrowMoney());
+	}
+	@Override
+	public long withdraw(long money) throws InvalidException {
+		return getRestMoney() - money;
 	}
 	
-	/**
-	 * 대출받기 기능
-	 * @param money
-	 * @return
-	 * @throws InvelidException
-	 */
-	public long loan(long money) throws InvelidException {
+	public long loan (long money) throws InvalidException {
 		if(getRestMoney() + getBorrowMoney() > 50000000) {
-			throw new InvelidException("잔액이 50,000,000원을 넘길 수 없습니다.");
+			throw new InvalidException("잔액이 50,000,000원을 넘길 수 없습니다.");
 		}
+		this.borrowMoney = money;
 		return getRestMoney() - money;
 	}
 }

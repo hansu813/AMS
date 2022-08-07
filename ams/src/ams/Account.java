@@ -1,25 +1,23 @@
 package ams;
 
-import java.util.Formatter;
 /**
- * 입출금 계좌 클래스
+ * 파일입출력을 추가한
+ * 가상 계좌 관리 시스템
  * @author 김한수
  *
  */
 public class Account {
-	public static String bankName = "Korea IT Bank";
-	public static final long MAX_MONEY = 50000000;
+//	상수
+	public static final String BANKNAME = "Korea Bank";
 	
-	private String accountType = "입출금 통장";
+//	인스턴스 변수
 	private String accountNum;
 	private String accountOwner;
 	private int passwd;
 	private long restMoney;
-	private long money;
+	private String accountType = "입출금 계좌";
 	
-	StringBuffer sb = new StringBuffer();
-	Formatter format = new Formatter(sb);
-	
+//	생성자
 	public Account() {}
 	public Account(String accountNum, String accountOwner, int passwd) {
 		this.accountNum = accountNum;
@@ -27,8 +25,13 @@ public class Account {
 		this.passwd = passwd;
 		this.restMoney = 0;
 	}
+	public Account(String accountNum, String accountOwner, int passwd, long restMoney) {
+		this.accountNum = accountNum;
+		this.accountOwner = accountOwner;
+		this.passwd = passwd;
+		this.restMoney = restMoney;
+	}
 	
-//	Getter and Setter
 	public String getAccountNum() {
 		return accountNum;
 	}
@@ -44,67 +47,67 @@ public class Account {
 	public int getPasswd() {
 		return passwd;
 	}
-	public void setPasswd(int passwd) {
-		this.passwd = passwd;
-	}
 	public long getRestMoney() {
 		return restMoney;
 	}
-	public long getMoney() {
-		return money;
-	}
-	public void setMoney(long money) {
-		this.money = money;
+	public static String getBankName() {
+		return BANKNAME;
 	}
 	public String getAccountType() {
 		return accountType;
 	}
+
+//	메서드
+/**
+ * 비밀번호 체크
+ * @param passwd
+ * @return boolean
+ */
+	public boolean checkPW(int passwd) {
+		boolean check;
+		check = (this.passwd == passwd) ? true : false;
+		return check;
+	}
 	
-//	Method Overriding
 	@Override
 	public String toString() {
-		String sf = String.format("%-10s\t%-12s\t%-6s\t%-,8d", getAccountType(), 
-				getAccountNum(), getAccountOwner(), getRestMoney());
-		
-		return sf;
+		String text = String.format("%-10s\t%-12s\t%-6s\t%-,8d\t", getAccountType(), getAccountNum(), getAccountOwner(),
+				getRestMoney());
+		return text;
 	}
-	/**
-	 * 입금하기 Method
-	 * @param money
-	 * @return 잔액
-	 * @throws InvelidException
-	 */
-	public long deposit(long money) throws InvelidException {
-		if(money <= 0) {
-			throw new InvelidException("입금하고자 하는 금액은 0원이거나 음수일 수 없습니다.");
+
+/**
+ * 입금 기능	
+ * @param money
+ * @return long
+ * @throws InvalidException
+ */
+	public long deposit(long money) throws InvalidException {
+		if(money <= 0) { 
+			InvalidException e = new InvalidException("입금 금액은 0원 이하이일 수 없습니다.");
 		}
-		restMoney += money;
+		else {
+			restMoney += money;
+		}
 		return restMoney;
 	}
 	
-	/**
-	 * 출금하기 Method
-	 * @param money
-	 * @return 잔액
-	 * @throws InvelidException
-	 */
-	public long withdraw(long money) throws InvelidException {
+/**
+ * 출금 기능
+ * @param money
+ * @return long
+ * @throws InvalidException
+ */
+	public long withdraw(long money) throws InvalidException {
+		InvalidException e;
 		if(money <= 0) {
-			throw new InvelidException("출금하고자 하는 금액은 0원이거나 음수일 수 없습니다.");
+			e = new InvalidException("출금 금액은 0원 이하이일 수 없습니다.");
+		} else if (money > restMoney) {
+			e = new InvalidException("잔액이 부족합니다.");
+		} else {
+			restMoney -= money;
 		}
-		if(restMoney < money) {
-			throw new InvelidException("현재 잔액보다 더 큰 금액을 입금할 수 없습니다.");
-		}
-		restMoney -= money;
 		return restMoney;
 	}
 	
-	/**
-	 * 비밀번호 확인
-	 * @param passwd
-	 * @return boolean
-	 */
-	public boolean cheakPasswd(int passwd) {
-		return this.passwd == passwd;
-	}
 }

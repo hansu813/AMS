@@ -3,11 +3,7 @@ package ams;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 public class AMSPanel extends Panel {
 	Inventory inventory;
@@ -21,9 +17,6 @@ public class AMSPanel extends Panel {
 
 	GridBagConstraints constraint = new GridBagConstraints();
 	GridBagLayout layout = new GridBagLayout();
-	Account account;
-	MinusAccount minusAccount;
-	Account tempAccount;
 
 	public AMSPanel(Inventory inventory) {
 		this.inventory = inventory;
@@ -56,7 +49,49 @@ public class AMSPanel extends Panel {
 
 		listTA = new TextArea();
 	}
+	
+	private void add(Component component, int gridx, int gridy, int gridwidth, int gridheight, int fill) {
+		constraint.gridx = gridx;
+		constraint.gridy = gridy;
+		constraint.gridwidth = gridwidth;
+		constraint.gridheight = gridheight;
+		constraint.fill = fill;
+		constraint.insets = new Insets(2, 2, 2, 2);
+		layout.setConstraints(component, constraint);
+		add(component);
+	}
 
+	private void add(Component component, int gridx, int gridy, int gridwidth, int gridheight, int fill,
+			int direction) {
+		constraint.gridx = gridx;
+		constraint.gridy = gridy;
+		constraint.gridwidth = gridwidth;
+		constraint.gridheight = gridheight;
+		constraint.anchor = direction;
+		constraint.fill = fill;
+		constraint.insets = new Insets(2, 2, 2, 2);
+		layout.setConstraints(component, constraint);
+		add(component);
+	}
+	
+	private void appendBasic() {
+		String basic = String.format("%-9s|\t%-12s|\t%-6s|\t%-8s|\t%-8s|", "계좌종류", "계좌번호", "예금주명", "현재잔액", "대출금액");
+		listTA.setText("");
+		listTA.append("-------------------------------------------------------------------------\n");
+		listTA.append(basic + "\n");
+		listTA.append("=========================================================================\n");
+	}
+	
+	private Account makeAccount(String accountType, String accountNum, String accountOwner, int passwd) {
+		Account account = null;
+		if(accountType.equals("입출금 계좌"))
+			account = new Account(accountNum, accountOwner,passwd);
+		if(accountType.equals("마이너스 계좌")) {
+			account = new MinusAccount(accountNum, accountOwner, passwd);
+		}
+		return account;
+	}
+	
 	public void init() {
 		setLayout(layout);
 
@@ -81,88 +116,48 @@ public class AMSPanel extends Panel {
 		add(unitLB, 3, 5, 1, 1, GridBagConstraints.NONE, GridBagConstraints.EAST);
 		add(listTA, 0, 6, 4, 1, GridBagConstraints.NONE);
 	}
-
-	private void add(Component component, int gridx, int gridy, int gridwidth, int gridheight, int fill) {
-		constraint.gridx = gridx;
-		constraint.gridy = gridy;
-		constraint.gridwidth = gridwidth;
-		constraint.gridheight = gridheight;
-		constraint.fill = fill;
-		constraint.insets = new Insets(2, 2, 2, 2);
-		layout.setConstraints(component, constraint);
-		add(component);
-	}
-
-	private void add(Component component, int gridx, int gridy, int gridwidth, int gridheight, int fill,
-			int direction) {
-		constraint.gridx = gridx;
-		constraint.gridy = gridy;
-		constraint.gridwidth = gridwidth;
-		constraint.gridheight = gridheight;
-		constraint.anchor = direction;
-		constraint.fill = fill;
-		constraint.insets = new Insets(2, 2, 2, 2);
-		layout.setConstraints(component, constraint);
-		add(component);
-	}
-
-	private Account makeAccount(String accountType, String accountNum, String accountOwner, int passwd) {
-		Account account = null;
-		if(accountType.equals("입출금 계좌"))
-			account = new Account(accountNum, accountOwner,passwd);
-		if(accountType.equals("마이너스 계좌")) {
-			account = new MinusAccount(accountNum, accountOwner, passwd);
-		}
-		return account;
-	}
 	
-	private void appendBasic() {
-		String basic = String.format("%-9s|\t%-12s|\t%-6s|\t%-8s|\t%-8s|", "계좌종류", "계좌번호", "예금주명", "현재잔액", "대출금액");
-		listTA.setText("");
-		listTA.append("-------------------------------------------------------------------------\n");
-		listTA.append(basic + "\n");
-		listTA.append("=========================================================================\n");
-	}
-
 	public void eventRegist() {
 		class ActionEventListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Object eventSource = e.getSource();
-				if (eventSource == inquireB) {
+				if(eventSource == addB) {
+					appendBasic();
+					Account account = null;
+					account = makeAccount(choice.getSelectedItem(), numTF.getText(), ownerTF.getText(), Integer.parseInt(passwdTF.getText()));
+					inventory.create(account);
+				}
+				if(eventSource == inquireB) {
 					appendBasic();
 					String num = "";
-					num = inventory.findNum(numTF.getText()).toString();
-					listTA.append(num + "\n");
+					num = numTF.getText();
+					String accountText = inventory.findNum(num).toString();
+					listTA.append(accountText);
 				}
-				if (eventSource == addB) {
+				if(eventSource == findB) {
+					List<Account> list = null;
 					appendBasic();
-					Account account;
-					account = makeAccount(choice.getSelectedItem(), numTF.getText(), ownerTF.getText(), Integer.parseInt(passwdTF.getText()));
-					inventory.open(account);
-				}
-				if (eventSource == findB) {
-					appendBasic();
-					List<Account> findList;
 					String owner = "";
-					findList = inventory.findOwner(ownerTF.getText());
-					for(int i = 0; i < findList.size(); i++) {
-						listTA.append(findList.get(i).toString() + "\n");
+					owner = ownerTF.getText();
+					list = inventory.findOwner(owner);
+					for(int i = 0; i < list.size(); i++) {
+						listTA.append(list.get(i).toString() + "\n");
 					}
 				}
-				if (eventSource == viewB) {
-					appendBasic();
-					List<Account> findList;
-					findList = inventory.getAccounts();
-					for(int i = 0; i < findList.size(); i++) {
-						listTA.append(findList.get(i).toString() + "\n");
-					}
-				}
-				if (eventSource == deleteB) {
+				if(eventSource == deleteB) {
 					appendBasic();
 					inventory.remove(numTF.getText());
 				}
-			}
+				if(eventSource == viewB) {
+					appendBasic();
+					List<Account> list = null;
+					list = inventory.readList();
+					for(int i = 0; i < list.size(); i++) {
+						listTA.append((list.get(i).toString()) + "\n");
+					}
+				}
+			}	
 		}
 		ActionEventListener listener = new ActionEventListener();
 		inquireB.addActionListener(listener);
@@ -170,42 +165,29 @@ public class AMSPanel extends Panel {
 		findB.addActionListener(listener);
 		viewB.addActionListener(listener);
 		deleteB.addActionListener(listener);
-		inmoneyTF.addActionListener(new ActionListener() {	
+		inmoneyTF.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String input = inmoneyTF.getText();
-				String num = numTF.getText();
-				long money = Long.parseLong(input);
-				for(int i = 0; i < inventory.getCount(); i++) {
-					if(inventory.getAccounts().get(i).getAccountNum().equals(num)) {
-						try {
-							inventory.getAccounts().get(i).deposit(money);
-						} catch (InvelidException e1) {
-							e1.printStackTrace();
-						}
-					}
+				Account account = null;
+				account = inventory.findNum(numTF.getText());
+				try {
+					account.deposit(Long.parseLong(inmoneyTF.getText()));
+					inventory.update(account);
+				} catch (InvalidException e1) {
+					e1.getMessage();
 				}
 			}
 		});
 		borrowTF.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String borrow = borrowTF.getText();
-				String num = numTF.getText();
-				long money = Long.parseLong(borrow);
-				String type = choice.getSelectedItem();
-				String accountNum = "";
-				for(int i = 0; i < inventory.getCount(); i++) {
-					accountNum = inventory.getAccounts().get(i).getAccountNum();
-					if(accountNum.equals(num)) {
-						if(type.equals("마이너스 계좌")) {
-							MinusAccount account = (MinusAccount) inventory.getAccounts().get(i);
-							try {
-								account.loan(money);
-							} catch (InvelidException e1) {
-								e1.printStackTrace();
-							}
-						}
+				Account account = null;
+				account = inventory.findNum(numTF.getText());
+				if(account instanceof MinusAccount) {
+					try {
+					((MinusAccount) account).loan(Long.parseLong(borrowTF.getText()));
+					} catch (InvalidException e1) {
+						e1.getMessage();
 					}
 				}
 			}
