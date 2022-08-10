@@ -15,7 +15,7 @@ public class Account {
 	private String accountOwner;
 	private int passwd;
 	private long restMoney;
-	private String accountType = "입출금 계좌";
+	private String accountType = Accounts.ACCOUNT.getAccountType();
 	
 //	생성자
 	public Account() {}

@@ -1,5 +1,6 @@
 package ams;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -10,12 +11,14 @@ import java.util.Map;
 public class Inventory {
 
 	private Map<String, Account> accounts;
+	private FileUtil file;
 
-	public Inventory() {
+	public Inventory(FileUtil file) throws IOException {
 		accounts = new LinkedHashMap<>();
-	}
-	public Inventory(Map<String, Account> accounts) {
-		this.accounts = accounts;
+		if(file.getRecordCount() != 0) {
+			this.accounts = file.road();
+		}	
+		this.file = file;
 	}
 
 	/**
@@ -23,26 +26,27 @@ public class Inventory {
 	 * 
 	 * @param account
 	 */
-	public void create(Account account) {
+	public void create(Account account) throws IOException {
 		if(account instanceof MinusAccount) {
 			accounts.put(((MinusAccount) account).getAccountNum(), account);
 		} else {
 			accounts.put(account.getAccountNum(), account);
 		}
+		file.saveRecord(account);
 	}
 	
-	public void update(Account account) {
-		String accountType = account.getAccountType();
+	public void update(Account account) throws IOException {
 		String accountOwner = account.getAccountOwner();
 		String accountNum = account.getAccountNum();
 		int passwd = account.getPasswd();
 		long restMoney = account.getRestMoney();
 		long borrowMoney = 0;
+		file.delete(accountNum);
 		if(account instanceof MinusAccount) {
 			borrowMoney = ((MinusAccount) account).getBorrowMoney();
 			create(new MinusAccount(accountNum, accountOwner, passwd, restMoney, borrowMoney));
 		} else {
-			create(new Account("accountNum", "accountOwner", passwd, restMoney));
+			create(new Account(accountNum, accountOwner, passwd, restMoney));
 		}
 	}
 	
@@ -95,6 +99,11 @@ public class Inventory {
 	 * @return Account
 	 */
 	public Account remove(String accountNum) {
+		try {
+			file.delete(accountNum);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 		return accounts.remove(accountNum);
 	}
 }

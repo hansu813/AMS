@@ -1,4 +1,4 @@
-package ams;
+package ams ;
 
 /**
  * 마이너스 계좌
@@ -7,7 +7,7 @@ package ams;
  */
 public class MinusAccount extends Account {
 
-	public String accountType = "마이너스 계좌";
+	public String accountType = Accounts.MINUSACCOUNT.getAccountType();
 	
 	private long borrowMoney;
 	
